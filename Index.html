@@ -1,0 +1,21 @@
+<html>
+	<head>	
+		Time Sheet
+	</head>
+	<body>
+		<form method="post" onsubmit="doThis()">
+			<label>Test</label></br>
+			<input type="date" id="dummy" name="dummy">
+			<input type="submit">
+		</form>
+					<p id="result">You have selected: </p></br>
+	</body>
+	<script>
+	function doThis()
+	{
+		var input = document.getElementById("dummy").value
+		document.getElementById("result").value = input;
+		alert(input);
+	}
+	</script>
+</html>
