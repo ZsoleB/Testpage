@@ -1,21 +1,66 @@
 <html>
-	<head>	
-		Time Sheet
-	</head>
-	<body>
-		<form method="post" onsubmit="doThis()">
-			<label>Test</label></br>
-			<input type="date" id="dummy" name="dummy">
-			<input type="submit">
-		</form>
-					<p id="result">You have selected: </p></br>
-	</body>
+
+<head>
+	<title>Time Sheet</title>
+
+</head>
+
+<body>
+	<p>Time Sheet</p>
+	<table border=1 id="TimeSheetTable_ID">
+		<tr>
+			<th>Date</th>
+			<th>Hours</th>
+			<th>Project Name</th>
+			<th>Project DT</th>
+			<th>Description</th>
+		</tr>
+	</table>
+	<button name="TimeSheetAddRowBtn" id="TimeSheetAddRowBtn_ID" onclick="AddRowFunc()">Add entry</button>
+	<button name="TimeSheetUpdateBtn" id="TimeSheetUpdateBtn_ID">Update</button>
+
+	<p id="debug_test">Debug</p>
+
 	<script>
-	function doThis()
-	{
-		var input = document.getElementById("dummy").value
-		document.getElementById("result").value = input;
-		alert(input);
-	}
+		var Table = document.getElementById("TimeSheetTable_ID");
+		var TableColumnCount = Table.rows[0].cells.length;
+
+		var Debug_text_filed = document.getElementById("debug_test");
+
+		var date = new Date();
+		var testdate = new Date();
+
+		first_day_of_the_month = date.getFullYear()+"-0"+(date.getMonth()+1)+"-01";
+		Current_date = date.getFullYear()+"-0"+(date.getMonth()+1)+"-"+date.getDate();
+
+		function AddRowFunc() {
+			var NewTableRowElement = document.createElement("tr");
+
+			Table.appendChild(NewTableRowElement);
+			for (i = 0; i < TableColumnCount; i++) {
+				NewTableRowElement.appendChild(document.createElement("td"));
+			}
+			NewTableRowElement.childNodes[0].appendChild(document.createElement("input"));
+			NewTableRowElement.childNodes[0].childNodes[0].setAttribute("type", "date");
+			NewTableRowElement.childNodes[0].childNodes[0].setAttribute("value", Current_date);
+			NewTableRowElement.childNodes[0].childNodes[0].setAttribute("min", first_day_of_the_month);
+			NewTableRowElement.childNodes[1].appendChild(document.createElement("input"));
+			NewTableRowElement.childNodes[1].childNodes[0].setAttribute("type", "number");
+			NewTableRowElement.childNodes[1].childNodes[0].setAttribute("value", "8");
+			NewTableRowElement.childNodes[1].childNodes[0].setAttribute("min", "0");	
+			NewTableRowElement.childNodes[1].childNodes[0].setAttribute("max", "20");
+			NewTableRowElement.childNodes[2].appendChild(document.createElement("input"));
+			NewTableRowElement.childNodes[2].childNodes[0].setAttribute("type", "text");
+			NewTableRowElement.childNodes[3].appendChild(document.createElement("input"));
+			NewTableRowElement.childNodes[3].childNodes[0].setAttribute("type", "text");
+			NewTableRowElement.childNodes[4].appendChild(document.createElement("input"));
+			NewTableRowElement.childNodes[4].childNodes[0].setAttribute("type", "text");
+
+			testdate.setDate(2);
+			Debug_text_filed.innerHTML = testdate.getDate();
+
+		}
 	</script>
+</body>
+
 </html>
