@@ -7,18 +7,27 @@
 
 <body>
 	<p>Time Sheet</p>
-	<table border=1 id="TimeSheetTable_ID">
-		<tr>
-			<th>Date</th>
-			<th>Hours</th>
-			<th>Project Name</th>
-			<th>Project DT</th>
-			<th>Description</th>
-		</tr>
-	</table>
-	<button name="TimeSheetAddRowBtn" id="TimeSheetAddRowBtn_ID" onclick="AddRowFunc()">Add entry</button>
-	<button name="TimeSheetUpdateBtn" id="TimeSheetUpdateBtn_ID">Update</button>
-
+	<div class="Page" id="Main_Page">
+		<form action="">
+			<table border=1 id="TimeSheetTable_ID">
+				<tr>
+					<th>Date</th>
+					<th>Hours</th>
+					<th>Project Name</th>
+					<th>Project DT</th>
+					<th>Description</th>
+				</tr>
+			</table>
+			<input type="button" name="TimeSheetAddRowBtn" id="TimeSheetAddRowBtn_ID" onclick="AddRowFunc()"
+				value="Add entry">
+			<input type="button" name="TimeSheetUpdateBtn" id="TimeSheetUpdateBtn_ID" value="Update">
+		</form>
+	</div>
+	<div>
+		<input type="button" name="NewProjectBtn" id="NewProjectBtn_ID" onclick="AddProjectFunc()" value="Add Project">
+		<input type="text" name="NewProjectDTField" id="NewProjectDTField_ID">
+		<input type="text" name="NewProjectNameField" id="NewProjectNameField_ID">
+	</div>
 	<p id="debug_test">Debug</p>
 
 	<script>
@@ -28,10 +37,16 @@
 		var Debug_text_filed = document.getElementById("debug_test");
 
 		var date = new Date();
-		var testdate = new Date();
+		var last_day = new Date(date.getFullYear(), (date.getMonth() + 1), 0);
 
-		first_day_of_the_month = date.getFullYear()+"-0"+(date.getMonth()+1)+"-01";
-		Current_date = date.getFullYear()+"-0"+(date.getMonth()+1)+"-"+date.getDate();
+		first_day_of_the_month = date.getFullYear() + "-0" + (date.getMonth() + 1) + "-01";
+		last_day_of_the_month = date.getFullYear() + "-0" + (date.getMonth() + 1) + "-" + last_day.getDate();
+		Current_date = date.getFullYear() + "-0" + (date.getMonth() + 1) + "-" + date.getDate();
+
+		var Projects_Map = new Map();
+		var ProjectNameCount = 0;
+		var Global_ProjectName_List = document.createElement("select");
+		var Global_ProjectDT_List = document.createElement("select");
 
 		function AddRowFunc() {
 			var NewTableRowElement = document.createElement("tr");
@@ -44,21 +59,88 @@
 			NewTableRowElement.childNodes[0].childNodes[0].setAttribute("type", "date");
 			NewTableRowElement.childNodes[0].childNodes[0].setAttribute("value", Current_date);
 			NewTableRowElement.childNodes[0].childNodes[0].setAttribute("min", first_day_of_the_month);
+			NewTableRowElement.childNodes[0].childNodes[0].setAttribute("max", last_day_of_the_month);
+
 			NewTableRowElement.childNodes[1].appendChild(document.createElement("input"));
 			NewTableRowElement.childNodes[1].childNodes[0].setAttribute("type", "number");
 			NewTableRowElement.childNodes[1].childNodes[0].setAttribute("value", "8");
-			NewTableRowElement.childNodes[1].childNodes[0].setAttribute("min", "0");	
+			NewTableRowElement.childNodes[1].childNodes[0].setAttribute("min", "0");
 			NewTableRowElement.childNodes[1].childNodes[0].setAttribute("max", "20");
-			NewTableRowElement.childNodes[2].appendChild(document.createElement("input"));
-			NewTableRowElement.childNodes[2].childNodes[0].setAttribute("type", "text");
-			NewTableRowElement.childNodes[3].appendChild(document.createElement("input"));
-			NewTableRowElement.childNodes[3].childNodes[0].setAttribute("type", "text");
+
+			ProjectNameFormat_txt = "ProjectName_"+(Table.rows.length-2)+"_ID";
+			ProjectDTFormat_txt = "ProjectNameDT_"+(Table.rows.length-2)+"_ID";
+
+			NewTableRowElement.childNodes[2].appendChild(Global_ProjectName_List.cloneNode(true));
+			NewTableRowElement.childNodes[2].childNodes[0].setAttribute("class", "ProjectName");
+			NewTableRowElement.childNodes[2].childNodes[0].setAttribute("id", ProjectNameFormat_txt);
+			NewTableRowElement.childNodes[2].childNodes[0].setAttribute("onchange", "AlignProjectDataFunc(event,'"+ProjectNameFormat_txt+"')");
+
+			NewTableRowElement.childNodes[3].appendChild(Global_ProjectDT_List.cloneNode(true));
+			NewTableRowElement.childNodes[3].childNodes[0].setAttribute("class", "ProjectNameDT");
+			NewTableRowElement.childNodes[3].childNodes[0].setAttribute("id", "ProjectNameDT_"+(Table.rows.length-2)+"_ID");
+			NewTableRowElement.childNodes[3].childNodes[0].setAttribute("onchange", "AlignProjectDataFunc(event,'"+ProjectDTFormat_txt+"')");
+
 			NewTableRowElement.childNodes[4].appendChild(document.createElement("input"));
 			NewTableRowElement.childNodes[4].childNodes[0].setAttribute("type", "text");
 
-			testdate.setDate(2);
-			Debug_text_filed.innerHTML = testdate.getDate();
+			Debug_text_filed.innerHTML = "" + ProjectNameCount;
 
+		}
+		function AddProjectFunc() {
+			var New_Project_DT = document.getElementById("NewProjectDTField_ID").value;
+			var New_Project_Name = document.getElementById("NewProjectNameField_ID").value;
+			var ProjectNameList = document.getElementsByClassName("ProjectName");
+			var ProjectDTList = document.getElementsByClassName("ProjectNameDT");
+
+			Projects_Map.set(New_Project_DT, New_Project_Name);
+
+			Global_ProjectName_List.appendChild(document.createElement("option"));
+			Global_ProjectName_List.childNodes[ProjectNameCount].setAttribute("value", New_Project_Name);
+			Global_ProjectName_List.childNodes[ProjectNameCount].innerHTML = New_Project_Name;
+
+			Global_ProjectDT_List.appendChild(document.createElement("option"));
+			Global_ProjectDT_List.childNodes[ProjectNameCount].setAttribute("value", New_Project_DT);
+			Global_ProjectDT_List.childNodes[ProjectNameCount].innerHTML = New_Project_DT;
+
+			if (ProjectNameList.length > 0) {
+				for (i=0;i<(Table.rows.length-1);i++) {
+					ProjectNameList[i].appendChild(document.createElement("option"));
+					ProjectNameList[i].childNodes[ProjectNameCount].setAttribute("value", New_Project_Name);
+					ProjectNameList[i].childNodes[ProjectNameCount].innerHTML = New_Project_Name;
+
+					ProjectDTList[i].appendChild(document.createElement("option"));
+					ProjectDTList[i].childNodes[ProjectNameCount].setAttribute("value", New_Project_DT);
+					ProjectDTList[i].childNodes[ProjectNameCount].innerHTML = New_Project_DT;
+				}
+			}
+			ProjectNameCount++;
+		}
+
+		function AlignProjectDataFunc(e,event_source) 
+		{
+			var source_list=[];
+			var new_source_list="";
+
+			if(e.currentTarget.className == "ProjectName")
+			{
+				source_list = event_source.split('_')
+				source_list[0] = "ProjectNameDT"
+				new_source_list = source_list.join('_');
+			}
+			else if(e.currentTarget.className == "ProjectNameDT")
+			{
+				source_list = event_source.split('_')
+				source_list[0] = "ProjectName"
+				new_source_list = source_list.join('_');
+			}
+			else
+			{
+				/*Nothing to do here*/
+			}
+
+			var Selected_Element_Name = document.getElementById(event_source);
+			var Element_2B_Modified = document.getElementById(new_source_list);
+			Element_2B_Modified.selectedIndex =  Selected_Element_Name.selectedIndex;
 		}
 	</script>
 </body>
