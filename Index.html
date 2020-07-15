@@ -2,9 +2,16 @@
 
 <head>
 	<title>Time Sheet</title>
+	<link rel="stylesheet" type="text/css" href="Index_Style.css">
 </head>
 
 <body>
+	<!-- Page Selector -->
+	<div class="Tab">
+		<button class="Links">Main Page</button>
+		<button class="Links">Add Project</button>
+		<button class="Links">Help</button>
+	</div>
 	<p>Time Sheet</p>
 	<!-- Main TimeSheet Page -->
 	<div class="Page" id="Main_Page">
@@ -18,22 +25,42 @@
 					<th>Description</th>
 				</tr>
 			</table>
+			<input type="button" name="TimeSheetAutoBtn" id="TimeSheetAutoBtn_ID" value="Auto"
+				onclick="AutoGenerateTableFunc()">
 			<input type="button" name="TimeSheetAddRowBtn" id="TimeSheetAddRowBtn_ID" onclick="AddRowFunc()"
 				value="Add entry">
+			<input type="button" name="TimeSheetInsertBtn" id="TimeSheetInsertBtn_ID" value="Insert">
+			<input type="button" name="TimeSheetClearBtn" id="TimeSheetClearBtn_ID" value="Clear">
+			<input type="button" name="TimeSheetDeleteEntryBtn" id="TimeSheetDeleteEntryBtn_ID" value="Delete entry">
+			<input type="button" name="TimeSheetDeleteBtn" id="TimeSheetDeleteBtn_ID" value="Delete">
 			<input type="button" name="TimeSheetUpdateBtn" id="TimeSheetUpdateBtn_ID" value="Update">
 		</form>
 	</div>
-	<!-- Page Selector -->
-	<div>
+	<!--Project Table-->
+	<div class="Page" id="Project_Page">
+		<p>Project Table</p>
 		<label for="NewProjectDTField_ID">Project DT</label>
-		<input type="text" name="NewProjectDTField" id="NewProjectDTField_ID" placeholder="DT-nnnnnn" pattern="(^DT|^C{2})-[0-9]{5,6}" required>
-		<p id="NewProjectDTWarrning_ID" style="color: red; visibility: hidden;">==>The DT must have the following format DT(or CC)-123456(or 12345) <==</p></br>
+		<input type="text" name="NewProjectDTField" id="NewProjectDTField_ID" placeholder="DT-nnnnnn"
+			pattern="(^DT|^C{2})-[0-9]{5,6}" required>
+		<p id="NewProjectDTWarrning_ID" style="color: red; visibility: hidden;">==>The DT must have the following format
+			DT(or CC)-123456(or 12345) <== </p></br>
 
-		<label for="NewProjectNameField_ID">Project Name</label>
-		<input type="text" name="NewProjectNameField" id="NewProjectNameField_ID" placeholder="project-id" pattern ="^([a-zA-Z]+)_([0-9a-zA-Z]+){3}" required>
-		<p id="NewProjectNameWarrning_ID" style="color: red;visibility: hidden;">==>The Project name must follow the format : name_id (id must have minimum 3 leters) <==</p></br>
+				<label for="NewProjectNameField_ID">Project Name</label>
+				<input type="text" name="NewProjectNameField" id="NewProjectNameField_ID" placeholder="project-id"
+					pattern="^([a-zA-Z]+)_([0-9a-zA-Z]+){3}" required>
+				<p id="NewProjectNameWarrning_ID" style="color: red;visibility: hidden;">==>The Project name must follow
+					the format : name_id (id must have minimum 3 leters) <== </p></br>
 
-		<input type="button" name="NewProjectBtn" id="NewProjectBtn_ID" onclick="AddProjectFunc()" value="Add Project">
+						<input type="button" name="NewProjectBtn" id="NewProjectBtn_ID" onclick="AddProjectFunc()"
+							value="Add Project" disabled>
+						<table border=1 id="ProjectNameTable_ID">
+							<th>Project Name</th>
+							<th>Project DT</th>
+						</table>
+	</div>
+	<div class="Page" id="Help_Page">
+		<p>Help</p>
+		<p>The help text will be here</p>
 	</div>
 	<p id="debug_test">Debug</p>
 
@@ -49,8 +76,8 @@
 		var date = new Date();
 		var last_day = new Date(date.getFullYear(), (date.getMonth() + 1), 0);
 
-		first_day_of_the_month = date.getFullYear() + "-0" + (date.getMonth() + 1) + "-01";
-		last_day_of_the_month = date.getFullYear() + "-0" + (date.getMonth() + 1) + "-" + last_day.getDate();
+		first_day_of_the_month = date.getFullYear() + "-" + Padding_with_Zero(date.getMonth() + 1) + "-01";
+		last_day_of_the_month = date.getFullYear() + "-" + Padding_with_Zero(date.getMonth() + 1) + "-" + last_day.getDate();
 		Current_date = date.getFullYear() + "-0" + (date.getMonth() + 1) + "-" + date.getDate();
 
 		/*Container and name count for Project names and DT names.*/
@@ -63,66 +90,71 @@
 		var New_DT_Name_warrning = document.getElementById("NewProjectDTWarrning_ID");
 		var New_Project_Name_input = document.getElementById("NewProjectNameField_ID");
 		var New_Project_Name_warrning = document.getElementById("NewProjectNameWarrning_ID");
+		var New_Project_Add_Btn = document.getElementById("NewProjectBtn_ID");
 
 		/*Check the input text, if its not ok signal it with a red background and warning message.*/
-		New_DT_Name_input.addEventListener('input',function(event){
-			if(!New_DT_Name_input.validity.valid)
-			{
+		New_DT_Name_input.addEventListener('input', function (event) {
+			if (!New_DT_Name_input.validity.valid) {
 				New_DT_Name_input.style.backgroundColor = "red";
 				New_DT_Name_warrning.style.visibility = "visible";
-				console.log('not ok');
 			}
-			else
-			{
+			else {
 				New_DT_Name_input.style.backgroundColor = "white";
 				New_DT_Name_warrning.style.visibility = "hidden";
-				console.log('ok');
 			}
 		});
 
 		/*If input was written incorrectly the text will be removed.*/
-		New_DT_Name_input.addEventListener('blur',function(event){
-			if(!New_DT_Name_input.validity.valid)
-			{
+		New_DT_Name_input.addEventListener('blur', function (event) {
+			if (!New_DT_Name_input.validity.valid) {
 				New_DT_Name_input.value = "";
 				New_DT_Name_input.style.backgroundColor = "white";
 				New_DT_Name_warrning.style.visibility = "hidden";
 			}
-			else
-			{
-				/*Nothing to do*/
+			else {
+				if (New_Project_Name_input.validity.valid) {
+					New_Project_Add_Btn.disabled = false;
+				} else {
+					New_Project_Add_Btn.disabled = true;
+				}
 			}
 		});
 		/*Similar procedure for the project name input.*/
-		New_Project_Name_input.addEventListener('input',function(event){
-			if(!New_Project_Name_input.validity.valid)
-			{
+		New_Project_Name_input.addEventListener('input', function (event) {
+			if (!New_Project_Name_input.validity.valid) {
 				New_Project_Name_input.style.backgroundColor = "red";
 				New_Project_Name_warrning.style.visibility = "visible";
-				console.log('not ok');
 			}
-			else
-			{
+			else {
 				New_Project_Name_input.style.backgroundColor = "white";
 				New_Project_Name_warrning.style.visibility = "hidden";
-				console.log('ok');
 			}
 		});
 
-		New_Project_Name_input.addEventListener('blur',function(event){
-			if(!New_Project_Name_input.validity.valid)
-			{
+		New_Project_Name_input.addEventListener('blur', function (event) {
+			if (!New_Project_Name_input.validity.valid) {
 				New_Project_Name_input.value = "";
 				New_Project_Name_input.style.backgroundColor = "white";
 				New_Project_Name_warrning.style.visibility = "hidden";
 			}
-			else
-			{
-				/*Nothing to do*/
+			else {
+				if (New_DT_Name_input.validity.valid) {
+					New_Project_Add_Btn.disabled = false;
+				} else {
+					New_Project_Add_Btn.disabled = true;
+				}
 			}
 		});
 
-
+		/*Function nedded for correct output, of the date*/
+		function Padding_with_Zero(num) {
+			final_str = "";
+			if (num > 9) {
+				return final_str + num;
+			} else {
+				return final_str + "0" + num;
+			}
+		}
 
 		/*Row adding functionality*/
 		function AddRowFunc() {
@@ -148,7 +180,7 @@
 			NewTableRowElement.childNodes[1].childNodes[0].setAttribute("min", "0");
 			NewTableRowElement.childNodes[1].childNodes[0].setAttribute("max", "20");
 
-			/*Add selector element for project names. It will be cloned after a globar selector.*/		
+			/*Add selector element for project names. It will be cloned after a globar selector.*/
 			ProjectNameFormat_txt = "ProjectName_" + (Table.rows.length - 2) + "_ID";
 
 			NewTableRowElement.childNodes[2].appendChild(Global_ProjectName_List.cloneNode(true));
@@ -165,12 +197,15 @@
 			NewTableRowElement.childNodes[4].appendChild(document.createElement("input"));
 			NewTableRowElement.childNodes[4].childNodes[0].setAttribute("type", "text");
 		}
+
 		/*Project adding functionality.*/
 		function AddProjectFunc() {
 			var New_Project_DT = document.getElementById("NewProjectDTField_ID").value;
 			var New_Project_Name = document.getElementById("NewProjectNameField_ID").value;
 			var ProjectNameList = document.getElementsByClassName("ProjectName");
 			var ProjectDTList = document.getElementsByClassName("ProjectNameDT");
+			var ProjectTable = document.getElementById("ProjectNameTable_ID");
+			var NewTableRowElement = document.createElement("tr");
 
 			Projects_Map.set(New_Project_Name, New_Project_DT);
 
@@ -183,10 +218,21 @@
 					ProjectNameList[i].appendChild(document.createElement("option"));
 					ProjectNameList[i].childNodes[ProjectNameCount].setAttribute("value", New_Project_Name);
 					ProjectNameList[i].childNodes[ProjectNameCount].innerHTML = New_Project_Name;
+					ProjectDTList[i].innerHTML = New_Project_DT;
 				}
 			}
+
+			ProjectTable.appendChild(NewTableRowElement);
+			NewTableRowElement.appendChild(document.createElement("td"));
+			NewTableRowElement.appendChild(document.createElement("td"));
+
+			NewTableRowElement.childNodes[0].innerHTML = New_Project_Name.toUpperCase();
+			NewTableRowElement.childNodes[1].innerHTML = New_Project_DT;
+			ProjectTable.visibility = "visible";
+
 			ProjectNameCount++;
 		}
+
 		/*Function for aligning DT name and project name.*/
 		function AlignProjectDataFunc(e, event_source) {
 			/*Create a list and a string variable for the id name change.*/
@@ -202,6 +248,68 @@
 			var Selected_Element_Name = document.getElementById(event_source);
 			var Element_2B_Modified = document.getElementById(new_source_list);
 			Element_2B_Modified.innerHTML = Projects_Map.get(Selected_Element_Name.value);
+		}
+
+		function AutoGenerateTableFunc() {
+			var Auto_Btn = document.getElementById("TimeSheetAutoBtn_ID");
+			var Check_date = new Date();
+			var Auto_Table_Counter = Table.rows.length + 1;
+
+			for (i = 0; i < last_day.getDate(); i++) {
+				Check_date.setFullYear(date.getFullYear(), date.getMonth(), i + 1);
+				if ((Check_date.getDay() != 6) && (Check_date.getDay() != 0)) {
+
+					/*Append data to new row.*/
+					Table.appendChild(document.createElement("tr"));
+
+					/*Add table data for calendar*/
+					Table.childNodes[Auto_Table_Counter].appendChild(document.createElement("td"));
+
+					/*Add calendar input for date, with validation rules.*/
+					Table.childNodes[Auto_Table_Counter].childNodes[0].appendChild(document.createElement("input"));
+					Table.childNodes[Auto_Table_Counter].childNodes[0].childNodes[0].setAttribute("type", "date");
+					Table.childNodes[Auto_Table_Counter].childNodes[0].childNodes[0].setAttribute("value", date.getFullYear() + "-" + Padding_with_Zero(date.getMonth() + 1) + "-" + Padding_with_Zero(Check_date.getDate()));
+					Table.childNodes[Auto_Table_Counter].childNodes[0].childNodes[0].setAttribute("min", first_day_of_the_month);
+					Table.childNodes[Auto_Table_Counter].childNodes[0].childNodes[0].setAttribute("max", last_day_of_the_month);
+
+					/*Add table data for number of hours*/
+					Table.childNodes[Auto_Table_Counter].appendChild(document.createElement("td"));
+
+					/*Add number input for hours, with validation rules.*/
+					Table.childNodes[Auto_Table_Counter].childNodes[1].appendChild(document.createElement("input"));
+					Table.childNodes[Auto_Table_Counter].childNodes[1].childNodes[0].setAttribute("type", "number");
+					Table.childNodes[Auto_Table_Counter].childNodes[1].childNodes[0].setAttribute("value", "8");
+					Table.childNodes[Auto_Table_Counter].childNodes[1].childNodes[0].setAttribute("min", "0");
+					Table.childNodes[Auto_Table_Counter].childNodes[1].childNodes[0].setAttribute("max", "20");
+
+					/*Add table data for project names*/
+					Table.childNodes[Auto_Table_Counter].appendChild(document.createElement("td"));
+
+					ProjectNameFormat_txt = "ProjectName_" + (Table.rows.length - 2) + "_ID";
+
+					Table.childNodes[Auto_Table_Counter].childNodes[2].appendChild(Global_ProjectName_List.cloneNode(true));
+					Table.childNodes[Auto_Table_Counter].childNodes[2].childNodes[0].setAttribute("class", "ProjectName");
+					Table.childNodes[Auto_Table_Counter].childNodes[2].childNodes[0].setAttribute("id", ProjectNameFormat_txt);
+					Table.childNodes[Auto_Table_Counter].childNodes[2].childNodes[0].setAttribute("onchange", "AlignProjectDataFunc(event,'" + ProjectNameFormat_txt + "')");
+
+
+					/*Add table data for project DTs*/
+					Table.childNodes[Auto_Table_Counter].appendChild(document.createElement("td"));
+
+					Table.childNodes[Auto_Table_Counter].childNodes[3].innerHTML = Projects_Map.get(Table.childNodes[Auto_Table_Counter].childNodes[2].childNodes[0].value);
+					Table.childNodes[Auto_Table_Counter].childNodes[3].setAttribute("class", "ProjectNameDT");
+					Table.childNodes[Auto_Table_Counter].childNodes[3].setAttribute("id", "ProjectNameDT_" + (Table.rows.length - 2) + "_ID");
+
+					/*Add table data for descriptions*/
+					Table.childNodes[Auto_Table_Counter].appendChild(document.createElement("td"));
+
+					Table.childNodes[Auto_Table_Counter].childNodes[4].appendChild(document.createElement("input"));
+					Table.childNodes[Auto_Table_Counter].childNodes[4].childNodes[0].setAttribute("type", "text");
+
+					Auto_Table_Counter++;
+				}
+			}
+			Auto_Btn.disabled = true;
 		}
 	</script>
 </body>

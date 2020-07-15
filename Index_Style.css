@@ -1,0 +1,15 @@
+.Links
+{
+    background-color: #fff;
+    border: none;
+    border-radius: 4px 4px 0 0;
+}
+div.tab .Links:hover {
+    background-color: #ccc;
+    color: #fff;
+}
+
+div.tab .Links.active {
+    background-color: #ccc;
+    color: #fff;
+}
