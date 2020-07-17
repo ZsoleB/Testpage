@@ -29,11 +29,19 @@
 				onclick="AutoGenerateTableFunc()">
 			<input type="button" name="TimeSheetAddRowBtn" id="TimeSheetAddRowBtn_ID" onclick="AddRowFunc()"
 				value="Add entry">
-			<input type="button" name="TimeSheetInsertBtn" id="TimeSheetInsertBtn_ID" value="Insert">
-			<input type="button" name="TimeSheetClearBtn" id="TimeSheetClearBtn_ID" value="Clear">
-			<input type="button" name="TimeSheetDeleteEntryBtn" id="TimeSheetDeleteEntryBtn_ID" value="Delete entry">
-			<input type="button" name="TimeSheetDeleteBtn" id="TimeSheetDeleteBtn_ID" value="Delete">
-			<input type="button" name="TimeSheetUpdateBtn" id="TimeSheetUpdateBtn_ID" value="Update">
+			<input type="button" name="TimeSheetInsertBtn" class="TimeSheetInsert_Group" id="TimeSheetInsertBtn_ID"
+				onclick="InsertRowFunc()" value="Insert">
+			<input type="number" class="TimeSheetInsert_Group" id="TimeSheetInsertNumInput_ID" min=1 max=1 value=1>
+			<input type="button" name="TimeSheetClearBtn" id="TimeSheetClearBtn_ID" onclick="ClearFunc()" value="Clear"
+				disabled>
+			<input type="button" name="TimeSheetDeleteEntryBtn" id="TimeSheetDeleteEntryBtn_ID"
+				onclick="DeleteEntryFunc()" value="Delete entry" disabled>
+			<input type="button" name="TimeSheetDeleteBtn" class="TimeSheetDelete_Group" id="TimeSheetDeleteBtn_ID"
+				onclick="DeleteRowFunc()" value="Delete" disabled>
+			<input type="number" class="TimeSheetDelete_Group" id="TimeSheetDeleteNumInput_ID" min=0 max=0 value=0
+				disabled>
+			<input type="button" name="TimeSheetUpdateBtn" id="TimeSheetUpdateBtn_ID" onclick="UpdateFunc()"
+				value="Update">
 		</form>
 	</div>
 	<!--Project Table-->
@@ -65,6 +73,9 @@
 	<p id="debug_test">Debug</p>
 
 	<script>
+		/*Undefined variables*/
+		var ProjectHoursList = null;
+
 		/*Table related information.*/
 		var Table = document.getElementById("TimeSheetTable_ID");
 		var TableColumnCount = Table.rows[0].cells.length;
@@ -92,59 +103,15 @@
 		var New_Project_Name_warrning = document.getElementById("NewProjectNameWarrning_ID");
 		var New_Project_Add_Btn = document.getElementById("NewProjectBtn_ID");
 
-		/*Check the input text, if its not ok signal it with a red background and warning message.*/
-		New_DT_Name_input.addEventListener('input', function (event) {
-			if (!New_DT_Name_input.validity.valid) {
-				New_DT_Name_input.style.backgroundColor = "red";
-				New_DT_Name_warrning.style.visibility = "visible";
-			}
-			else {
-				New_DT_Name_input.style.backgroundColor = "white";
-				New_DT_Name_warrning.style.visibility = "hidden";
-			}
-		});
-
-		/*If input was written incorrectly the text will be removed.*/
-		New_DT_Name_input.addEventListener('blur', function (event) {
-			if (!New_DT_Name_input.validity.valid) {
-				New_DT_Name_input.value = "";
-				New_DT_Name_input.style.backgroundColor = "white";
-				New_DT_Name_warrning.style.visibility = "hidden";
-			}
-			else {
-				if (New_Project_Name_input.validity.valid) {
-					New_Project_Add_Btn.disabled = false;
-				} else {
-					New_Project_Add_Btn.disabled = true;
-				}
-			}
-		});
-		/*Similar procedure for the project name input.*/
-		New_Project_Name_input.addEventListener('input', function (event) {
-			if (!New_Project_Name_input.validity.valid) {
-				New_Project_Name_input.style.backgroundColor = "red";
-				New_Project_Name_warrning.style.visibility = "visible";
-			}
-			else {
-				New_Project_Name_input.style.backgroundColor = "white";
-				New_Project_Name_warrning.style.visibility = "hidden";
-			}
-		});
-
-		New_Project_Name_input.addEventListener('blur', function (event) {
-			if (!New_Project_Name_input.validity.valid) {
-				New_Project_Name_input.value = "";
-				New_Project_Name_input.style.backgroundColor = "white";
-				New_Project_Name_warrning.style.visibility = "hidden";
-			}
-			else {
-				if (New_DT_Name_input.validity.valid) {
-					New_Project_Add_Btn.disabled = false;
-				} else {
-					New_Project_Add_Btn.disabled = true;
-				}
-			}
-		});
+		/*Table management buttons*/
+		var Auto_Btn = document.getElementById("TimeSheetAutoBtn_ID");
+		var Insert_Row_Btn = document.getElementById("TimeSheetInsertBtn_ID");
+		var Delete_Row_Btn = document.getElementById("TimeSheetDeleteBtn_ID");
+		var Clear_Table_Btn = document.getElementById("TimeSheetClearBtn_ID");
+		var Delete_Entry_Btn = document.getElementById("TimeSheetDeleteEntryBtn_ID");
+		var Update_Table_Btn = document.getElementById("TimeSheetUpdateBtn_ID");
+		var Entry_Insert_Group = document.getElementsByClassName("TimeSheetInsert_Group");
+		var Entry_Delete_Group = document.getElementsByClassName("TimeSheetDelete_Group");
 
 		/*Function nedded for correct output, of the date*/
 		function Padding_with_Zero(num) {
@@ -173,14 +140,19 @@
 			NewTableRowElement.childNodes[0].childNodes[0].setAttribute("min", first_day_of_the_month);
 			NewTableRowElement.childNodes[0].childNodes[0].setAttribute("max", last_day_of_the_month);
 
+			/*Add selector element for project hours. It will be cloned after a global selector.*/
+			ProjectHoursFormat_txt = "ProjectHours_" + (Table.rows.length - 2) + "_ID";
+
 			/*Add number input for hours, with validation rules.*/
 			NewTableRowElement.childNodes[1].appendChild(document.createElement("input"));
 			NewTableRowElement.childNodes[1].childNodes[0].setAttribute("type", "number");
+			NewTableRowElement.childNodes[1].childNodes[0].setAttribute("class", "ProjectHours");
+			NewTableRowElement.childNodes[1].childNodes[0].setAttribute("id", ProjectHoursFormat_txt);
 			NewTableRowElement.childNodes[1].childNodes[0].setAttribute("value", "8");
-			NewTableRowElement.childNodes[1].childNodes[0].setAttribute("min", "0");
-			NewTableRowElement.childNodes[1].childNodes[0].setAttribute("max", "20");
+			NewTableRowElement.childNodes[1].childNodes[0].setAttribute("min", "1");
+			NewTableRowElement.childNodes[1].childNodes[0].setAttribute("max", "12");
 
-			/*Add selector element for project names. It will be cloned after a globar selector.*/
+			/*Add selector element for project names. It will be cloned after a global selector.*/
 			ProjectNameFormat_txt = "ProjectName_" + (Table.rows.length - 2) + "_ID";
 
 			NewTableRowElement.childNodes[2].appendChild(Global_ProjectName_List.cloneNode(true));
@@ -196,6 +168,30 @@
 			/*Add text input, for the description field.*/
 			NewTableRowElement.childNodes[4].appendChild(document.createElement("input"));
 			NewTableRowElement.childNodes[4].childNodes[0].setAttribute("type", "text");
+
+			/*Enable delete related input*/
+			Delete_Entry_Btn.disabled = false;
+			Clear_Table_Btn.disabled = false;
+
+			MyArray = Array.from(Entry_Delete_Group);
+			MyArray.forEach(element => {
+				element.disabled = false;;
+			});
+
+			/*update project hour list and add event listeners*/
+			ProjectHoursList = document.getElementsByClassName("ProjectHours");
+			for (i = 0; i < ProjectHoursList.length; i++) {
+				ProjectHoursList[i].addEventListener('input', function (event) {
+					if (Padding_with_Zero(event.target.value) > Padding_with_Zero(event.target.max)) {
+						event.target.value = event.target.max;
+					}
+					else if (Padding_with_Zero(event.target.value) < Padding_with_Zero(event.target.min)) {
+						event.target.value = event.target.min;
+					}
+					else {/*Nothing to do*/ }
+				});
+			}
+
 		}
 
 		/*Project adding functionality.*/
@@ -251,11 +247,11 @@
 		}
 
 		function AutoGenerateTableFunc() {
-			var Auto_Btn = document.getElementById("TimeSheetAutoBtn_ID");
 			var Check_date = new Date();
 			var Auto_Table_Counter = Table.rows.length + 1;
+			var Existing_Row_counter = Table.rows.length - 1;
 
-			for (i = 0; i < last_day.getDate(); i++) {
+			for (i = Existing_Row_counter; i < last_day.getDate(); i++) {
 				Check_date.setFullYear(date.getFullYear(), date.getMonth(), i + 1);
 				if ((Check_date.getDay() != 6) && (Check_date.getDay() != 0)) {
 
@@ -275,16 +271,22 @@
 					/*Add table data for number of hours*/
 					Table.childNodes[Auto_Table_Counter].appendChild(document.createElement("td"));
 
+					/*Add selector element for project hours. It will be cloned after a global selector.*/
+					ProjectHoursFormat_txt = "ProjectHours_" + (Table.rows.length - 2) + "_ID";
+
 					/*Add number input for hours, with validation rules.*/
 					Table.childNodes[Auto_Table_Counter].childNodes[1].appendChild(document.createElement("input"));
 					Table.childNodes[Auto_Table_Counter].childNodes[1].childNodes[0].setAttribute("type", "number");
+					Table.childNodes[Auto_Table_Counter].childNodes[1].childNodes[0].setAttribute("class", "ProjectHours");
+					Table.childNodes[Auto_Table_Counter].childNodes[1].childNodes[0].setAttribute("id", ProjectHoursFormat_txt);
 					Table.childNodes[Auto_Table_Counter].childNodes[1].childNodes[0].setAttribute("value", "8");
-					Table.childNodes[Auto_Table_Counter].childNodes[1].childNodes[0].setAttribute("min", "0");
-					Table.childNodes[Auto_Table_Counter].childNodes[1].childNodes[0].setAttribute("max", "20");
+					Table.childNodes[Auto_Table_Counter].childNodes[1].childNodes[0].setAttribute("min", "1");
+					Table.childNodes[Auto_Table_Counter].childNodes[1].childNodes[0].setAttribute("max", "12");
 
 					/*Add table data for project names*/
 					Table.childNodes[Auto_Table_Counter].appendChild(document.createElement("td"));
 
+					/*Add selector element for project names. It will be cloned after a global selector.*/
 					ProjectNameFormat_txt = "ProjectName_" + (Table.rows.length - 2) + "_ID";
 
 					Table.childNodes[Auto_Table_Counter].childNodes[2].appendChild(Global_ProjectName_List.cloneNode(true));
@@ -309,8 +311,140 @@
 					Auto_Table_Counter++;
 				}
 			}
+
+			/*update project hour list and add event listeners*/
+			ProjectHoursList = document.getElementsByClassName("ProjectHours");
+			for (i = 0; i < ProjectHoursList.length; i++) {
+				ProjectHoursList[i].addEventListener('input', function (event) {
+					if (Padding_with_Zero(event.target.value) > Padding_with_Zero(event.target.max)) {
+						event.target.value = event.target.max;
+					}
+					else if (Padding_with_Zero(event.target.value) < Padding_with_Zero(event.target.min)) {
+						event.target.value = event.target.min;
+					}
+					else {/*Nothing to do*/ }
+				});
+			}
 			Auto_Btn.disabled = true;
+
+			/*Enable delete related input*/
+			Delete_Entry_Btn.disabled = false;
+			Clear_Table_Btn.disabled = false;
+			for (i = 0; i < Entry_Delete_Group.length; i++) {
+				Entry_Delete_Group[i].disabled = false;
+			}
 		}
+
+		function InsertRowFunc() {
+			Entry_Insert_Group[1].setAttribute("max", (Table.rows.length - 1));
+		}
+
+		function ClearFunc() {
+			var Table_entry_count = Table.rows.length;
+			for (i = Table_entry_count; i > 1; i--) {
+				Table.removeChild(Table.childNodes[i]);
+			}
+			/*Enable auto button*/
+			Auto_Btn.disabled = false;
+			/*Disable delete related input*/
+			Delete_Entry_Btn.disabled = true;
+			Clear_Table_Btn.disabled = true;
+			for (i = 0; i < Entry_Delete_Group.length; i++) {
+				Entry_Delete_Group[i].disabled = true;
+			}
+		}
+
+		function DeleteEntryFunc() {
+			if (Table.rows.length > 1) {
+				Table.removeChild(Table.childNodes[Table.rows.length]);
+				if (Table.rows.length == 1) {
+					/*Disable delete related input*/
+					Delete_Entry_Btn.disabled = true;
+					Clear_Table_Btn.disabled = true;
+					for (i = 0; i < Entry_Delete_Group.length; i++) {
+						Entry_Delete_Group[i].disabled = true;
+					}
+				} else {/*Do nothing*/ }
+			} else {/*Do nothing*/ }
+			/*Enable auto button*/
+			Auto_Btn.disabled = false;
+		}
+
+		function DeleteRowFunc() {
+			if (Table.rows.length > 1) {
+				Table.removeChild(Table.childNodes[parseInt(Entry_Delete_Group[1].value) + 1]);
+				if (Table.rows.length == 1) {
+					/*Disable delete related input*/
+					Delete_Entry_Btn.disabled = true;
+					Clear_Table_Btn.disabled = true;
+					for (i = 0; i < Entry_Delete_Group.length; i++) {
+						Entry_Delete_Group[i].disabled = true;
+					}
+				} else {/*Do nothing*/ }
+			} else {/*Do nothing*/ }
+			/*Enable auto button*/
+			Auto_Btn.disabled = false;
+		}
+
+		function UpdateFunc() {
+
+		}
+
+		/*Check the input text, if its not ok signal it with a red background and warning message.*/
+		New_DT_Name_input.addEventListener('input', function (event) {
+			if (!New_DT_Name_input.validity.valid) {
+				New_DT_Name_input.style.backgroundColor = "red";
+				New_DT_Name_warrning.style.visibility = "visible";
+			}
+			else {
+				New_DT_Name_input.style.backgroundColor = "white";
+				New_DT_Name_warrning.style.visibility = "hidden";
+			}
+		});
+
+		/*If input was written incorrectly the text will be removed.*/
+		New_DT_Name_input.addEventListener('blur', function (event) {
+			if (!New_DT_Name_input.validity.valid) {
+				New_DT_Name_input.value = "";
+				New_DT_Name_input.style.backgroundColor = "white";
+				New_DT_Name_warrning.style.visibility = "hidden";
+			}
+			else {
+				if (New_Project_Name_input.validity.valid) {
+					New_Project_Add_Btn.disabled = false;
+				} else {
+					New_Project_Add_Btn.disabled = true;
+				}
+			}
+		});
+		/*Similar procedure for the project name input.*/
+		New_Project_Name_input.addEventListener('input', function (event) {
+			if (!New_Project_Name_input.validity.valid) {
+				New_Project_Name_input.style.backgroundColor = "red";
+				New_Project_Name_warrning.style.visibility = "visible";
+			}
+			else {
+				New_Project_Name_input.style.backgroundColor = "white";
+				New_Project_Name_warrning.style.visibility = "hidden";
+			}
+		});
+
+		New_Project_Name_input.addEventListener('blur', function (event) {
+			if (!New_Project_Name_input.validity.valid) {
+				New_Project_Name_input.value = "";
+				New_Project_Name_input.style.backgroundColor = "white";
+				New_Project_Name_warrning.style.visibility = "hidden";
+			}
+			else {
+				if (New_DT_Name_input.validity.valid) {
+					New_Project_Add_Btn.disabled = false;
+				} else {
+					New_Project_Add_Btn.disabled = true;
+				}
+			}
+		});
+
+
 	</script>
 </body>
 
